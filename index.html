@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>わり算プリント作成ツール</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    select, button, label {
+      font-size: 1.1em;
+      margin: 10px;
+      padding: 8px;
+    }
+    #controls {
+      margin-bottom: 20px;
+    }
+    #problems {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+      font-size: 1.4em;
+      justify-content: center;
+    }
+    #title-print {
+      text-align: center;
+      font-size: 1em;
+      margin: 0 0 10px 0;
+    }
+    #footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    .dan-checkbox {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    @media screen and (max-width: 600px) {
+      #problems {
+        font-size: 1.2em;
+      }
+    }
+
+    @media print {
+      body {
+        margin: 0;
+        padding: 10px;
+      }
+      #controls {
+        display: none;
+      }
+      #problems {
+        font-size: 1.6em;
+        grid-template-columns: repeat(3, 1fr) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="title-print">
+    <div style="margin-top: 5px;">
+      ______年＿＿＿＿組　　名前＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+    </div>
+  </div>
+  <div id="controls">
+    <div>
+      <label>わる数：</label>
+      <span class="dan-checkbox"><input type="checkbox" id="selectAllDan">すべて</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="1">1</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="2">2</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="3">3</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="4">4</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="5">5</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="6">6</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="7">7</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="8">8</span>
+      <span class="dan-checkbox"><input type="checkbox" class="dan" value="9">9</span>
+    </div>
+    <label>出題順：
+      <select id="order">
+        <option value="sequential">順番</option>
+        <option value="random">ランダム</option>
+      </select>
+    </label>
+    <label>問題数：
+      <select id="count">
+        <option value="9">9問</option>
+        <option value="18">18問</option>
+        <option value="27">27問</option>
+        <option value="36">36問</option>
+        <option value="45">45問</option>
+        <option value="54">54問</option>
+        <option value="63">63問</option>
+        <option value="72">72問</option>
+        <option value="81">81問</option>
+        <option value="90">90問</option>
+      </select>
+    </label>
+    <br>
+    <button onclick="generateDivisionProblems()">作成</button>
+    <button onclick="window.print()">印刷</button>
+  </div>
+  <div id="problems"></div>
+  <div id="footer">©特別支援教材開発研究所</div>
+
+  <script>
+    document.getElementById("selectAllDan").addEventListener("change", function () {
+      const checked = this.checked;
+      document.querySelectorAll(".dan").forEach(cb => cb.checked = checked);
+    });
+
+    function generateDivisionProblems() {
+      const selectedDans = Array.from(document.querySelectorAll('.dan:checked')).map(cb => parseInt(cb.value));
+      const order = document.getElementById('order').value;
+      const count = parseInt(document.getElementById('count').value);
+      const problemsDiv = document.getElementById('problems');
+      problemsDiv.innerHTML = '';
+
+      if (selectedDans.length === 0) {
+        alert("わる数を1つ以上選択してください。");
+        return;
+      }
+
+      let allProblems = [];
+      selectedDans.forEach(divisor => {
+        for (let quotient = 1; quotient <= 9; quotient++) {
+          const dividend = divisor * quotient;
+          allProblems.push(`${dividend} ÷ ${divisor} ＝　`);
+        }
+      });
+
+      if (order === 'random') {
+        allProblems = shuffleArray(allProblems);
+      }
+
+      allProblems = allProblems.slice(0, count);
+
+      allProblems.forEach(p => {
+        const div = document.createElement('div');
+        div.textContent = p;
+        problemsDiv.appendChild(div);
+      });
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+  </script>
+</body>
+</html>
